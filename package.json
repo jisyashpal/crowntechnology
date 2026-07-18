@@ -1,0 +1,11 @@
+{
+  "name": "crowntechnology",
+  "version": "1.0.0",
+  "description": "Crown Technology Website",
+  "scripts": {
+    "build-css": "tailwindcss -i ./src/input.css -o ./public/assets/css/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}
