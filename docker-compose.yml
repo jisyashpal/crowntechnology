@@ -1,0 +1,37 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      DB_HOST: db
+      DB_NAME: ${DB_NAME:-crown_cms}
+      DB_USER: ${DB_USER:-crown_user}
+      DB_PASS: ${DB_PASS:-crown_password}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-crown_cms}
+      MYSQL_USER: ${DB_USER:-crown_user}
+      MYSQL_PASSWORD: ${DB_PASS:-crown_password}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS:-change_this_root_password}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./src/pages/database.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASS:-change_this_root_password}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  db_data:
